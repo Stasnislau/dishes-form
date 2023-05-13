@@ -2,7 +2,7 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Grid, Box, Button, TextField, Paper, MenuItem } from "@mui/material";
-import moment from "moment";
+import { submitData } from "@/Services";
 
 interface FormValues {
   name: string;
@@ -74,7 +74,7 @@ const HomePage = () => {
       return false;
     }),
   });
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     if (values.type === "pizza") {
       const data = {
         name: values.name,
@@ -83,7 +83,8 @@ const HomePage = () => {
         no_of_slices: values.no_of_slices,
         diameter: values.diameter,
       };
-      console.log(data);
+      const response = await submitData(data);
+      console.log(response, "response");
     } else if (values.type === "soup") {
       const data = {
         name: values.name,
@@ -91,7 +92,8 @@ const HomePage = () => {
         type: values.type,
         spiciness_scale: values.spiciness_scale,
       };
-      console.log(data);
+      const response = await submitData(data);
+      console.log(response, "response");
     } else if (values.type === "sandwich") {
       const data = {
         name: values.name,
@@ -99,7 +101,8 @@ const HomePage = () => {
         type: values.type,
         slices_of_bread: values.slices_of_bread,
       };
-      console.log(data);
+      const response = await submitData(data);
+      console.log(response, "response");
     }
   };
 
