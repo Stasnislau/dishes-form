@@ -1,8 +1,10 @@
 "use client";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Grid, Box, Button, TextField, Paper, MenuItem } from "@mui/material";
+import { Grid, Box, TextField, Paper, MenuItem, Alert, AlertTitle } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import { submitData } from "@/Services";
+import { useState } from "react";
 
 interface FormValues {
   name: string;
@@ -15,6 +17,8 @@ interface FormValues {
 }
 
 const HomePage = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<Boolean>(false);
   const initialValues = {
     name: "",
     preparation_time: "",
@@ -28,53 +32,80 @@ const HomePage = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Required"),
     preparation_time: Yup.string()
-      .matches(/^[0-9][0-9]:[0-5][0-9]:[0-5][0-9]$/, "Format: HH:MM:SS")
+      .matches(
+        /^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/,
+        "Format: HH:MM:SS"
+      )
       .required("Required"),
     type: Yup.string().required("Required"),
-    no_of_slices: Yup.number().test("is-pizza", "Invalid type", () => {
-      if (initialValues.type !== "pizza") {
-        return true;
+    no_of_slices: Yup.number().test(
+      "is-pizza",
+      "Invalid type or value",
+      (value) => {
+        if (formik.values.type && formik.values.type !== "pizza") {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (value >= -1) {
+          return true;
+        }
+        return false;
       }
-      if (initialValues.no_of_slices <= 12 && initialValues.no_of_slices >= 1) {
-        return true;
+    ),
+    diameter: Yup.number().test(
+      "is-pizza",
+      "Invalid type or value",
+      (value) => {
+        if (formik.values.type && formik.values.type !== "pizza") {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (value >= -1) {
+          return true;
+        }
+        return false;
       }
-      return false;
-    }),
-    diameter: Yup.number().test("is-pizza", "Invalid type", () => {
-      if (initialValues.type !== "pizza") {
-        return true;
+    ),
+    spiciness_scale: Yup.number().test(
+      "is-soup",
+      "Invalid type or value",
+      (value) => {
+        if (formik.values.type && formik.values.type !== "soup") {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (value >= 1) {
+          return true;
+        }
+        return false;
       }
-      if (initialValues.diameter <= 50 && initialValues.diameter >= 10) {
-        return true;
+    ),
+    slices_of_bread: Yup.number().test(
+      "is-sandwich",
+      "Invalid type or value",
+      (value) => {
+        if (formik.values.type && formik.values.type !== "sandwich") {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (value >= 1) {
+          return true;
+        }
+        return false;
       }
-      return false;
-    }),
-    spiciness_scale: Yup.number().test("is-soup", "Invalid type", () => {
-      if (initialValues.type !== "soup") {
-        return true;
-      }
-      if (
-        initialValues.spiciness_scale <= 10 &&
-        initialValues.spiciness_scale >= 1
-      ) {
-        return true;
-      }
-      return false;
-    }),
-    slices_of_bread: Yup.number().test("is-sandwich", "Invalid type", () => {
-      if (initialValues.type !== "sandwich") {
-        return true;
-      }
-      if (
-        initialValues.slices_of_bread <= 10 &&
-        initialValues.slices_of_bread >= 1
-      ) {
-        return true;
-      }
-      return false;
-    }),
+    ),
   });
   const onSubmit = async (values: FormValues) => {
+    let response = null;
+    setError(null);
     if (values.type === "pizza") {
       const data = {
         name: values.name,
@@ -83,8 +114,7 @@ const HomePage = () => {
         no_of_slices: values.no_of_slices,
         diameter: values.diameter,
       };
-      const response = await submitData(data);
-      console.log(response, "response");
+      response = await submitData(data);
     } else if (values.type === "soup") {
       const data = {
         name: values.name,
@@ -92,8 +122,7 @@ const HomePage = () => {
         type: values.type,
         spiciness_scale: values.spiciness_scale,
       };
-      const response = await submitData(data);
-      console.log(response, "response");
+      response = await submitData(data);
     } else if (values.type === "sandwich") {
       const data = {
         name: values.name,
@@ -101,8 +130,19 @@ const HomePage = () => {
         type: values.type,
         slices_of_bread: values.slices_of_bread,
       };
-      const response = await submitData(data);
-      console.log(response, "response");
+      response = await submitData(data);
+    }
+    if (response.error)
+      setError(response.error.message || "Something went wrong");
+    else if (response.id) {
+      setSuccess(true);
+      setTimeout(() => { 
+        setSuccess(false);
+        formik.resetForm();
+      }, 5000);
+    } else if (!response.id) {
+      const key = Object.keys(response)[0];
+      setError(`${key}: ${response[key][0]}`);
     }
   };
 
@@ -128,7 +168,7 @@ const HomePage = () => {
                   fullWidth
                   id="name"
                   name="name"
-                  label="Name"
+                  label="Dish name"
                   value={formik.values.name}
                   onChange={formik.handleChange}
                   error={formik.touched.name && Boolean(formik.errors.name)}
@@ -172,7 +212,6 @@ const HomePage = () => {
                   onBlur={formik.handleBlur}
                   helperText={formik.touched.type && formik.errors.type}
                 >
-                  <MenuItem value="">Please Select</MenuItem>
                   <MenuItem value="pizza">Pizza</MenuItem>
                   <MenuItem value="soup">Soup</MenuItem>
                   <MenuItem value="sandwich">Sandwich</MenuItem>
@@ -272,16 +311,38 @@ const HomePage = () => {
                 </Grid>
               </Grid>
             )}
+            {error && (
+              <Grid container spacing={2}>
+                <Grid item xs={12} sx={styles.formControl}>
+                  <Alert sx={{ width: "100%", mt: 2 }} severity="error">
+                  <AlertTitle>Error</AlertTitle>
+                    {error}
+                  </Alert>
+                </Grid>
+              </Grid>
+            )}
             <Box sx={{ textAlign: "center" }}>
-              <Button
+              <LoadingButton
+                loading={formik.isSubmitting}
                 variant="contained"
                 color="primary"
                 type="submit"
                 sx={{ mt: 2 }}
               >
                 Submit
-              </Button>
+              </LoadingButton>
             </Box>
+
+            {success && (
+              <Grid container spacing={2}>
+                <Grid item xs={12} sx={styles.formControl}>
+                  <Alert sx={{ width: "100%", mt: 2 }} severity="success">
+                    <AlertTitle>Success</AlertTitle>
+                    Your form has successfully been submitted{" "}
+                  </Alert>
+                </Grid>
+              </Grid>
+            )}
           </form>
         </Paper>
       </Grid>
