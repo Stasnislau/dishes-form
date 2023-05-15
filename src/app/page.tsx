@@ -1,7 +1,18 @@
 "use client";
 import { useFormik } from "formik";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { orange } from "@mui/material/colors";
 import * as Yup from "yup";
-import { Grid, Box, TextField, Paper, MenuItem, Alert, AlertTitle } from "@mui/material";
+import {
+  Grid,
+  Box,
+  TextField,
+  Paper,
+  MenuItem,
+  Alert,
+  AlertTitle,
+  Typography,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { submitData } from "@/Services";
 import { useState } from "react";
@@ -48,7 +59,7 @@ const HomePage = () => {
         if (!value) {
           return false;
         }
-        if (value >= -1) {
+        if (value >= 1) {
           return true;
         }
         return false;
@@ -64,7 +75,7 @@ const HomePage = () => {
         if (!value) {
           return false;
         }
-        if (value >= -1) {
+        if (value >= 1) {
           return true;
         }
         return false;
@@ -136,7 +147,7 @@ const HomePage = () => {
       setError(response.error.message || "Something went wrong");
     else if (response.id) {
       setSuccess(true);
-      setTimeout(() => { 
+      setTimeout(() => {
         setSuccess(false);
         formik.resetForm();
       }, 5000);
@@ -145,7 +156,16 @@ const HomePage = () => {
       setError(`${key}: ${response[key][0]}`);
     }
   };
-
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: orange[500],
+      },
+      secondary: {
+        main: orange[300],
+      },
+    },
+  });
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -156,197 +176,225 @@ const HomePage = () => {
       display: "flex",
       marginBottom: "1rem",
     },
+    page: {
+      marginTop: "4rem",
+      padding: "2rem",
+      borderRadius: "1rem",
+      boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+    },
   };
   return (
-    <Grid container justifyContent="center">
-      <Grid item xs={12} md={6}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <form onSubmit={formik.handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sx={styles.formControl}>
-                <TextField
-                  fullWidth
-                  id="name"
-                  name="name"
-                  label="Dish name"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  error={formik.touched.name && Boolean(formik.errors.name)}
-                  onBlur={formik.handleBlur}
-                  helperText={formik.touched.name && formik.errors.name}
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sx={styles.formControl}>
-                <TextField
-                  fullWidth
-                  id="preparation_time"
-                  name="preparation_time"
-                  label="Preparation time"
-                  value={formik.values.preparation_time}
-                  onChange={formik.handleChange}
-                  error={
-                    formik.touched.preparation_time &&
-                    Boolean(formik.errors.preparation_time)
-                  }
-                  onBlur={formik.handleBlur}
-                  helperText={
-                    formik.touched.preparation_time &&
-                    formik.errors.preparation_time
-                  }
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sx={styles.formControl}>
-                <TextField
-                  fullWidth
-                  id="type"
-                  name="type"
-                  label="Type"
-                  select
-                  value={formik.values.type}
-                  onChange={formik.handleChange}
-                  error={formik.touched.type && Boolean(formik.errors.type)}
-                  onBlur={formik.handleBlur}
-                  helperText={formik.touched.type && formik.errors.type}
-                >
-                  <MenuItem value="pizza">Pizza</MenuItem>
-                  <MenuItem value="soup">Soup</MenuItem>
-                  <MenuItem value="sandwich">Sandwich</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
-            {formik.values.type === "pizza" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sx={styles.formControl}>
-                  <TextField
-                    fullWidth
-                    id="no_of_slices"
-                    name="no_of_slices"
-                    label="Number of slices"
-                    type="number"
-                    value={formik.values.no_of_slices}
-                    onChange={formik.handleChange}
-                    error={
-                      formik.touched.no_of_slices &&
-                      Boolean(formik.errors.no_of_slices)
-                    }
-                    onBlur={formik.handleBlur}
-                    helperText={
-                      formik.touched.no_of_slices && formik.errors.no_of_slices
-                    }
-                  />
-                </Grid>
-              </Grid>
-            )}
-            {formik.values.type === "pizza" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sx={styles.formControl}>
-                  <TextField
-                    fullWidth
-                    id="diameter"
-                    name="diameter"
-                    label="Diameter"
-                    type="number"
-                    value={formik.values.diameter}
-                    onChange={formik.handleChange}
-                    error={
-                      formik.touched.diameter && Boolean(formik.errors.diameter)
-                    }
-                    onBlur={formik.handleBlur}
-                    helperText={
-                      formik.touched.diameter && formik.errors.diameter
-                    }
-                  />
-                </Grid>
-              </Grid>
-            )}
-            {formik.values.type === "soup" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sx={styles.formControl}>
-                  <TextField
-                    fullWidth
-                    id="spiciness_scale"
-                    name="spiciness_scale"
-                    label="Spiciness scale"
-                    type="number"
-                    value={formik.values.spiciness_scale}
-                    onChange={formik.handleChange}
-                    error={
-                      formik.touched.spiciness_scale &&
-                      Boolean(formik.errors.spiciness_scale)
-                    }
-                    onBlur={formik.handleBlur}
-                    helperText={
-                      formik.touched.spiciness_scale &&
-                      formik.errors.spiciness_scale
-                    }
-                  />
-                </Grid>
-              </Grid>
-            )}
-            {formik.values.type === "sandwich" && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sx={styles.formControl}>
-                  <TextField
-                    fullWidth
-                    id="slices_of_bread"
-                    name="slices_of_bread"
-                    label="Slices of bread"
-                    type="number"
-                    value={formik.values.slices_of_bread}
-                    onChange={formik.handleChange}
-                    error={
-                      formik.touched.slices_of_bread &&
-                      Boolean(formik.errors.slices_of_bread)
-                    }
-                    onBlur={formik.handleBlur}
-                    helperText={
-                      formik.touched.slices_of_bread &&
-                      formik.errors.slices_of_bread
-                    }
-                  />
-                </Grid>
-              </Grid>
-            )}
-            {error && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sx={styles.formControl}>
-                  <Alert sx={{ width: "100%", mt: 2 }} severity="error">
-                  <AlertTitle>Error</AlertTitle>
-                    {error}
-                  </Alert>
-                </Grid>
-              </Grid>
-            )}
-            <Box sx={{ textAlign: "center" }}>
-              <LoadingButton
-                loading={formik.isSubmitting}
-                variant="contained"
-                color="primary"
-                type="submit"
-                sx={{ mt: 2 }}
+    <ThemeProvider theme={theme}>
+      <Grid container justifyContent="center">
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} sx={styles.page}>
+            <Box sx={{ textAlign: "center", marginBottom: 2 }}>
+              <Typography
+                variant="h4"
+                sx={{ textAlign: "center", fontFamily: "cursive" }}
               >
-                Submit
-              </LoadingButton>
+                Order your dish
+              </Typography>
             </Box>
-
-            {success && (
+            <form onSubmit={formik.handleSubmit}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sx={styles.formControl}>
-                  <Alert sx={{ width: "100%", mt: 2 }} severity="success">
-                    <AlertTitle>Success</AlertTitle>
-                    Your form has successfully been submitted{" "}
-                  </Alert>
+                  <TextField
+                    fullWidth
+                    id="name"
+                    name="name"
+                    label="Dish name"
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    error={formik.touched.name && Boolean(formik.errors.name)}
+                    onBlur={formik.handleBlur}
+                    helperText={formik.touched.name && formik.errors.name}
+                  />
                 </Grid>
               </Grid>
-            )}
-          </form>
-        </Paper>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sx={styles.formControl}>
+                  <TextField
+                    fullWidth
+                    id="preparation_time"
+                    name="preparation_time"
+                    label="Preparation time"
+                    value={formik.values.preparation_time}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.preparation_time &&
+                      Boolean(formik.errors.preparation_time)
+                    }
+                    onBlur={formik.handleBlur}
+                    helperText={
+                      formik.touched.preparation_time &&
+                      formik.errors.preparation_time
+                    }
+                  />
+                </Grid>
+              </Grid>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sx={styles.formControl}>
+                  <TextField
+                    fullWidth
+                    id="type"
+                    name="type"
+                    label="Type"
+                    select
+                    value={formik.values.type}
+                    onChange={formik.handleChange}
+                    error={formik.touched.type && Boolean(formik.errors.type)}
+                    onBlur={formik.handleBlur}
+                    helperText={formik.touched.type && formik.errors.type}
+                  >
+                    <MenuItem value="pizza">Pizza</MenuItem>
+                    <MenuItem value="soup">Soup</MenuItem>
+                    <MenuItem value="sandwich">Sandwich</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+              {formik.values.type === "pizza" && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sx={styles.formControl}>
+                    <TextField
+                      fullWidth
+                      id="no_of_slices"
+                      name="no_of_slices"
+                      label="Number of slices"
+                      type="number"
+                      value={formik.values.no_of_slices}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.no_of_slices &&
+                        Boolean(formik.errors.no_of_slices)
+                      }
+                      onBlur={formik.handleBlur}
+                      helperText={
+                        formik.touched.no_of_slices &&
+                        formik.errors.no_of_slices
+                      }
+                    />
+                  </Grid>
+                </Grid>
+              )}
+              {formik.values.type === "pizza" && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sx={styles.formControl}>
+                    <TextField
+                      fullWidth
+                      id="diameter"
+                      name="diameter"
+                      label="Diameter"
+                      type="number"
+                      value={formik.values.diameter}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.diameter &&
+                        Boolean(formik.errors.diameter)
+                      }
+                      onBlur={formik.handleBlur}
+                      helperText={
+                        formik.touched.diameter && formik.errors.diameter
+                      }
+                    />
+                  </Grid>
+                </Grid>
+              )}
+              {formik.values.type === "soup" && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sx={styles.formControl}>
+                    <TextField
+                      fullWidth
+                      id="spiciness_scale"
+                      name="spiciness_scale"
+                      label="Spiciness scale"
+                      type="number"
+                      value={formik.values.spiciness_scale}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.spiciness_scale &&
+                        Boolean(formik.errors.spiciness_scale)
+                      }
+                      onBlur={formik.handleBlur}
+                      helperText={
+                        formik.touched.spiciness_scale &&
+                        formik.errors.spiciness_scale
+                      }
+                    />
+                  </Grid>
+                </Grid>
+              )}
+              {formik.values.type === "sandwich" && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sx={styles.formControl}>
+                    <TextField
+                      fullWidth
+                      id="slices_of_bread"
+                      name="slices_of_bread"
+                      label="Slices of bread"
+                      type="number"
+                      value={formik.values.slices_of_bread}
+                      onChange={formik.handleChange}
+                      error={
+                        formik.touched.slices_of_bread &&
+                        Boolean(formik.errors.slices_of_bread)
+                      }
+                      onBlur={formik.handleBlur}
+                      helperText={
+                        formik.touched.slices_of_bread &&
+                        formik.errors.slices_of_bread
+                      }
+                    />
+                  </Grid>
+                </Grid>
+              )}
+              {error && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sx={styles.formControl}>
+                    <Alert sx={{ width: "100%", mt: 2 }} severity="error">
+                      <AlertTitle>Error</AlertTitle>
+                      {error}
+                    </Alert>
+                  </Grid>
+                </Grid>
+              )}
+              <Box sx={{ textAlign: "center" }}>
+                <LoadingButton
+                  loading={formik.isSubmitting}
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  sx={{
+                    marginTop: "16px",
+                    padding: "12px 24px",
+                    borderRadius: "8px",
+                    background: (theme) => theme.palette.primary.main,
+                    color: "#fff",
+                    fontWeight: "bold",
+                    "&:hover": {
+                      background: (theme) => theme.palette.secondary.main,
+                    },
+                  }}
+                >
+                  Submit
+                </LoadingButton>
+              </Box>
+
+              {success && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sx={styles.formControl}>
+                    <Alert sx={{ width: "100%", mt: 2 }} severity="success">
+                      <AlertTitle>Success</AlertTitle>
+                      Your form has successfully been submitted{" "}
+                    </Alert>
+                  </Grid>
+                </Grid>
+              )}
+            </form>
+          </Paper>
+        </Grid>
       </Grid>
-    </Grid>
+    </ThemeProvider>
   );
 };
 
