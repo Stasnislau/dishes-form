@@ -3,7 +3,7 @@
   src: url("/fonts/orangejuice.ttf") format("truetype");
 }
 .html-container {
-  background: url("../../public/images/background.jpg") repeat center center fixed;
+  background: url("../../public/images/background.png") repeat center center fixed;
   height: 100%;
   width: 100%;
 }

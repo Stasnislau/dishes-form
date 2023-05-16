@@ -180,7 +180,7 @@ const HomePage = () => {
       marginTop: "4rem",
       padding: "2rem",
       borderRadius: "1rem",
-      boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+      boxShadow: "0 0 10px rgba(0,0,0,0.7)",
     },
   };
   return (
