@@ -190,8 +190,11 @@ const HomePage = () => {
           <Paper elevation={3} sx={styles.page}>
             <Box sx={{ textAlign: "center", marginBottom: 2 }}>
               <Typography
-                variant="h4"
-                sx={{ textAlign: "center", fontFamily: "cursive" }}
+                variant="h2"
+                sx={{
+                  textAlign: "center",
+                  fontFamily: "orangejuice"
+                }}
               >
                 Order your dish
               </Typography>
@@ -365,8 +368,8 @@ const HomePage = () => {
                   color="primary"
                   type="submit"
                   sx={{
-                    marginTop: "16px",
-                    padding: "12px 24px",
+                    marginTop: "1rem",
+                    padding: "0.5rem 3rem",
                     borderRadius: "8px",
                     background: (theme) => theme.palette.primary.main,
                     color: "#fff",
