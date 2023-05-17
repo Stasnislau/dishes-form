@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { submitData } from "@/Services";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface FormValues {
   name: string;
@@ -39,6 +39,12 @@ const HomePage = () => {
     spiciness_scale: 1,
     slices_of_bread: 1,
   };
+  useEffect(() => {
+    const input = document.getElementById("name");
+    if (input) {
+      input.focus();
+    }
+  }, []);
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Required"),
@@ -193,7 +199,7 @@ const HomePage = () => {
                 variant="h2"
                 sx={{
                   textAlign: "center",
-                  fontFamily: "orangejuice"
+                  fontFamily: "orangejuice",
                 }}
               >
                 Order your dish
@@ -207,6 +213,7 @@ const HomePage = () => {
                     id="name"
                     name="name"
                     label="Dish name"
+                    autoFocus
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     error={formik.touched.name && Boolean(formik.errors.name)}
