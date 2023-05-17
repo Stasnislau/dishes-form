@@ -2,6 +2,7 @@
 import { useFormik } from "formik";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
+import { keyframes, styled } from "@mui/system";
 import * as Yup from "yup";
 import {
   Grid,
@@ -26,7 +27,31 @@ interface FormValues {
   spiciness_scale: number;
   slices_of_bread: number;
 }
+const fadeInAnimation = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+const scalingAnimation = keyframes`
+  from {
+    transform: scale(0.7);
+  }
+  to {
+    transform: scale(1.0);
+  }
+`;
 
+const AnimatedPaper = styled(Paper)`
+  animation: ${scalingAnimation} 0.5s ease-out;
+`;
+const AnimatedAlert = styled(Alert)`
+  animation: ${fadeInAnimation} 0.5s ease-out;
+`;
 const HomePage = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<Boolean>(false);
@@ -46,132 +71,132 @@ const HomePage = () => {
     }
   }, []);
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Required"),
-    preparation_time: Yup.string()
-      .matches(
-        /^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/,
-        "Format: HH:MM:SS"
-      )
-      .required("Required"),
-    type: Yup.string().required("Required"),
-    no_of_slices: Yup.number().test(
-      "is-pizza",
-      "Invalid type or value",
-      (value) => {
-        if (formik.values.type && formik.values.type !== "pizza") {
-          return true;
-        }
-        if (!value) {
+    const validationSchema = Yup.object().shape({
+      name: Yup.string().required("Required"),
+      preparation_time: Yup.string()
+        .matches(
+          /^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/,
+          "Format: HH:MM:SS"
+        )
+        .required("Required"),
+      type: Yup.string().required("Required"),
+      no_of_slices: Yup.number().test(
+        "is-pizza",
+        "Invalid type or value",
+        (value) => {
+          if (formik.values.type && formik.values.type !== "pizza") {
+            return true;
+          }
+          if (!value) {
+            return false;
+          }
+          if (value >= 1) {
+            return true;
+          }
           return false;
         }
-        if (value >= 1) {
-          return true;
-        }
-        return false;
-      }
-    ),
-    diameter: Yup.number().test(
-      "is-pizza",
-      "Invalid type or value",
-      (value) => {
-        if (formik.values.type && formik.values.type !== "pizza") {
-          return true;
-        }
-        if (!value) {
+      ),
+      diameter: Yup.number().test(
+        "is-pizza",
+        "Invalid type or value",
+        (value) => {
+          if (formik.values.type && formik.values.type !== "pizza") {
+            return true;
+          }
+          if (!value) {
+            return false;
+          }
+          if (value >= 1) {
+            return true;
+          }
           return false;
         }
-        if (value >= 1) {
-          return true;
-        }
-        return false;
-      }
-    ),
-    spiciness_scale: Yup.number().test(
-      "is-soup",
-      "Invalid type or value",
-      (value) => {
-        if (formik.values.type && formik.values.type !== "soup") {
-          return true;
-        }
-        if (!value) {
+      ),
+      spiciness_scale: Yup.number().test(
+        "is-soup",
+        "Invalid type or value",
+        (value) => {
+          if (formik.values.type && formik.values.type !== "soup") {
+            return true;
+          }
+          if (!value) {
+            return false;
+          }
+          if (value >= 1) {
+            return true;
+          }
           return false;
         }
-        if (value >= 1) {
-          return true;
-        }
-        return false;
-      }
-    ),
-    slices_of_bread: Yup.number().test(
-      "is-sandwich",
-      "Invalid type or value",
-      (value) => {
-        if (formik.values.type && formik.values.type !== "sandwich") {
-          return true;
-        }
-        if (!value) {
+      ),
+      slices_of_bread: Yup.number().test(
+        "is-sandwich",
+        "Invalid type or value",
+        (value) => {
+          if (formik.values.type && formik.values.type !== "sandwich") {
+            return true;
+          }
+          if (!value) {
+            return false;
+          }
+          if (value >= 1) {
+            return true;
+          }
           return false;
         }
-        if (value >= 1) {
-          return true;
-        }
-        return false;
+      ),
+    });
+    const onSubmit = async (values: FormValues) => {
+      let response = null;
+      setError(null);
+      if (values.type === "pizza") {
+        const data = {
+          name: values.name,
+          preparation_time: values.preparation_time,
+          type: values.type,
+          no_of_slices: values.no_of_slices,
+          diameter: values.diameter,
+        };
+        response = await submitData(data);
+      } else if (values.type === "soup") {
+        const data = {
+          name: values.name,
+          preparation_time: values.preparation_time,
+          type: values.type,
+          spiciness_scale: values.spiciness_scale,
+        };
+        response = await submitData(data);
+      } else if (values.type === "sandwich") {
+        const data = {
+          name: values.name,
+          preparation_time: values.preparation_time,
+          type: values.type,
+          slices_of_bread: values.slices_of_bread,
+        };
+        response = await submitData(data);
       }
-    ),
-  });
-  const onSubmit = async (values: FormValues) => {
-    let response = null;
-    setError(null);
-    if (values.type === "pizza") {
-      const data = {
-        name: values.name,
-        preparation_time: values.preparation_time,
-        type: values.type,
-        no_of_slices: values.no_of_slices,
-        diameter: values.diameter,
-      };
-      response = await submitData(data);
-    } else if (values.type === "soup") {
-      const data = {
-        name: values.name,
-        preparation_time: values.preparation_time,
-        type: values.type,
-        spiciness_scale: values.spiciness_scale,
-      };
-      response = await submitData(data);
-    } else if (values.type === "sandwich") {
-      const data = {
-        name: values.name,
-        preparation_time: values.preparation_time,
-        type: values.type,
-        slices_of_bread: values.slices_of_bread,
-      };
-      response = await submitData(data);
-    }
-    if (response.error)
-      setError(response.error.message || "Something went wrong");
-    else if (response.id) {
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        formik.resetForm();
-      }, 5000);
-    } else if (!response.id) {
-      const key = Object.keys(response)[0];
-      setError(`${key}: ${response[key][0]}`);
-    }
-  };
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: orange[500],
+      if (response.error)
+        setError(response.error.message || "Something went wrong");
+      else if (response.id) {
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          formik.resetForm();
+        }, 5000);
+      } else if (!response.id) {
+        const key = Object.keys(response)[0];
+        setError(`${key}: ${response[key][0]}`);
+      }
+    };
+    const theme = createTheme({
+      palette: {
+        primary: {
+          main: orange[500],
+        },
+        secondary: {
+          main: orange[300],
+        },
       },
-      secondary: {
-        main: orange[300],
-      },
-    },
-  });
+    });
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -193,7 +218,7 @@ const HomePage = () => {
     <ThemeProvider theme={theme}>
       <Grid container justifyContent="center">
         <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={styles.page}>
+          <AnimatedPaper elevation={3} sx={styles.page}>
             <Box sx={{ textAlign: "center", marginBottom: 2 }}>
               <Typography
                 variant="h2"
@@ -361,10 +386,10 @@ const HomePage = () => {
               {error && (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sx={styles.formControl}>
-                    <Alert sx={{ width: "100%", mt: 2 }} severity="error">
+                    <AnimatedAlert sx={{ width: "100%", mt: 2 }} severity="error">
                       <AlertTitle>Error</AlertTitle>
                       {error}
-                    </Alert>
+                    </AnimatedAlert>
                   </Grid>
                 </Grid>
               )}
@@ -393,15 +418,15 @@ const HomePage = () => {
               {success && (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sx={styles.formControl}>
-                    <Alert sx={{ width: "100%", mt: 2 }} severity="success">
+                    <AnimatedAlert sx={{ width: "100%", mt: 2 }} severity="success">
                       <AlertTitle>Success</AlertTitle>
                       Your form has successfully been submitted{" "}
-                    </Alert>
+                    </AnimatedAlert>
                   </Grid>
                 </Grid>
               )}
             </form>
-          </Paper>
+          </AnimatedPaper>
         </Grid>
       </Grid>
     </ThemeProvider>
