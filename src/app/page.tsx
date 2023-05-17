@@ -54,7 +54,8 @@ const AnimatedAlert = styled(Alert)`
 `;
 const HomePage = () => {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<Boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [disabled, setDisabled] = useState<boolean | undefined>(false);
   const initialValues = {
     name: "",
     preparation_time: "",
@@ -71,132 +72,139 @@ const HomePage = () => {
     }
   }, []);
 
-    const validationSchema = Yup.object().shape({
-      name: Yup.string().required("Required"),
-      preparation_time: Yup.string()
-        .matches(
-          /^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/,
-          "Format: HH:MM:SS"
-        )
-        .required("Required"),
-      type: Yup.string().required("Required"),
-      no_of_slices: Yup.number().test(
-        "is-pizza",
-        "Invalid type or value",
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Required"),
+    preparation_time: Yup.string()
+      .matches(
+        /^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/,
+        "Format: HH:MM:SS"
+      )
+      .required("Required"),
+    type: Yup.string().required("Required"),
+    no_of_slices: Yup.number()
+      .test("is-pizza", "Invalid type or value", (value) => {
+        if (formik.values.type && formik.values.type !== "pizza") {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (value >= 1) {
+          return true;
+        }
+        return false;
+      })
+      .integer("Must be integer"),
+    diameter: Yup.number()
+      .test("is-pizza", "Invalid type or value", (value) => {
+        if (formik.values.type && formik.values.type !== "pizza") {
+          return true;
+        }
+        if (!value) {
+          return false;
+        }
+        if (value >= 1) {
+          return true;
+        }
+        return false;
+      })
+      .test(
+        "decimal-places",
+        "Ensure that there are no more than 2 decimal places",
         (value) => {
           if (formik.values.type && formik.values.type !== "pizza") {
             return true;
           }
-          if (!value) {
+          if (value && value.toString().split(".")[1]?.length > 2) {
             return false;
           }
-          if (value >= 1) {
-            return true;
-          }
-          return false;
+          return true;
         }
       ),
-      diameter: Yup.number().test(
-        "is-pizza",
-        "Invalid type or value",
-        (value) => {
-          if (formik.values.type && formik.values.type !== "pizza") {
-            return true;
-          }
-          if (!value) {
-            return false;
-          }
-          if (value >= 1) {
-            return true;
-          }
+    spiciness_scale: Yup.number()
+      .test("is-soup", "Invalid type or value", (value) => {
+        if (formik.values.type && formik.values.type !== "soup") {
+          return true;
+        }
+        if (!value) {
           return false;
         }
-      ),
-      spiciness_scale: Yup.number().test(
-        "is-soup",
-        "Invalid type or value",
-        (value) => {
-          if (formik.values.type && formik.values.type !== "soup") {
-            return true;
-          }
-          if (!value) {
-            return false;
-          }
-          if (value >= 1) {
-            return true;
-          }
+        if (value >= 1) {
+          return true;
+        }
+        return false;
+      })
+      .integer("Must be integer"),
+    slices_of_bread: Yup.number()
+      .test("is-sandwich", "Invalid type or value", (value) => {
+        if (formik.values.type && formik.values.type !== "sandwich") {
+          return true;
+        }
+        if (!value) {
           return false;
         }
-      ),
-      slices_of_bread: Yup.number().test(
-        "is-sandwich",
-        "Invalid type or value",
-        (value) => {
-          if (formik.values.type && formik.values.type !== "sandwich") {
-            return true;
-          }
-          if (!value) {
-            return false;
-          }
-          if (value >= 1) {
-            return true;
-          }
-          return false;
+        if (value >= 1) {
+          return true;
         }
-      ),
-    });
-    const onSubmit = async (values: FormValues) => {
-      let response = null;
-      setError(null);
-      if (values.type === "pizza") {
-        const data = {
-          name: values.name,
-          preparation_time: values.preparation_time,
-          type: values.type,
-          no_of_slices: values.no_of_slices,
-          diameter: values.diameter,
-        };
-        response = await submitData(data);
-      } else if (values.type === "soup") {
-        const data = {
-          name: values.name,
-          preparation_time: values.preparation_time,
-          type: values.type,
-          spiciness_scale: values.spiciness_scale,
-        };
-        response = await submitData(data);
-      } else if (values.type === "sandwich") {
-        const data = {
-          name: values.name,
-          preparation_time: values.preparation_time,
-          type: values.type,
-          slices_of_bread: values.slices_of_bread,
-        };
-        response = await submitData(data);
-      }
-      if (response.error)
-        setError(response.error.message || "Something went wrong");
-      else if (response.id) {
-        setSuccess(true);
-        setTimeout(() => {
-          setSuccess(false);
-          formik.resetForm();
-        }, 5000);
-      } else if (!response.id) {
-        const key = Object.keys(response)[0];
-        setError(`${key}: ${response[key][0]}`);
-      }
-    };
-    const theme = createTheme({
-      palette: {
-        primary: {
-          main: orange[500],
-        },
-        secondary: {
-          main: orange[300],
-        },
+        return false;
+      })
+      .integer("Must be integer"),
+  });
+  const onSubmit = async (values: FormValues) => {
+    let response = null;
+    setError(null);
+    if (values.type === "pizza") {
+      const data = {
+        name: values.name,
+        preparation_time: values.preparation_time,
+        type: values.type,
+        no_of_slices: values.no_of_slices,
+        diameter: values.diameter,
+      };
+      response = await submitData(data);
+    } else if (values.type === "soup") {
+      const data = {
+        name: values.name,
+        preparation_time: values.preparation_time,
+        type: values.type,
+        spiciness_scale: values.spiciness_scale,
+      };
+      response = await submitData(data);
+    } else if (values.type === "sandwich") {
+      const data = {
+        name: values.name,
+        preparation_time: values.preparation_time,
+        type: values.type,
+        slices_of_bread: values.slices_of_bread,
+      };
+      response = await submitData(data);
+    }
+    console.log(response);
+    if (response.error)
+      setError(response.error.message || "Something went wrong");
+    else if (response.id) {
+      setSuccess(true);
+      setDisabled(true);
+      setTimeout(() => {
+        setDisabled(false);
+        setSuccess(false);
+        formik.resetForm();
+      }, 5000);
+    } else if (!response.id) {
+      const key = Object.keys(response)[0];
+      setError(`${key}: ${response[key][0]}`);
+    }
+  };
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: orange[500],
       },
-    });
+      secondary: {
+        main: orange[300],
+      },
+    },
+  });
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -239,6 +247,10 @@ const HomePage = () => {
                     name="name"
                     label="Dish name"
                     autoFocus
+                    inputProps={{
+                      pattern: "^[a-zA-Z0-9 ]*$",
+                      maxLength: 40,
+                    }}
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     error={formik.touched.name && Boolean(formik.errors.name)}
@@ -297,6 +309,11 @@ const HomePage = () => {
                       name="no_of_slices"
                       label="Number of slices"
                       type="number"
+                      inputProps={{
+                        min: 1,
+                        pattern: "^[0-9]*$",
+                        max: 99999,
+                      }}
                       value={formik.values.no_of_slices}
                       onChange={formik.handleChange}
                       error={
@@ -322,6 +339,11 @@ const HomePage = () => {
                       label="Diameter"
                       type="number"
                       value={formik.values.diameter}
+                      inputProps={{
+                        min: 1,
+                        pattern: "^[0-9]*$",
+                        max: 99999,
+                      }}
                       onChange={formik.handleChange}
                       error={
                         formik.touched.diameter &&
@@ -346,6 +368,11 @@ const HomePage = () => {
                       type="number"
                       value={formik.values.spiciness_scale}
                       onChange={formik.handleChange}
+                      inputProps={{
+                        min: 1,
+                        pattern: "^[0-9]*$",
+                        max: 10,
+                      }}
                       error={
                         formik.touched.spiciness_scale &&
                         Boolean(formik.errors.spiciness_scale)
@@ -374,6 +401,11 @@ const HomePage = () => {
                         formik.touched.slices_of_bread &&
                         Boolean(formik.errors.slices_of_bread)
                       }
+                      inputProps={{
+                        min: 1,
+                        pattern: "^[0-9]*$",
+                        max: 99999,
+                      }}
                       onBlur={formik.handleBlur}
                       helperText={
                         formik.touched.slices_of_bread &&
@@ -386,7 +418,10 @@ const HomePage = () => {
               {error && (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sx={styles.formControl}>
-                    <AnimatedAlert sx={{ width: "100%", mt: 2 }} severity="error">
+                    <AnimatedAlert
+                      sx={{ width: "100%", mt: 2 }}
+                      severity="error"
+                    >
                       <AlertTitle>Error</AlertTitle>
                       {error}
                     </AnimatedAlert>
@@ -399,6 +434,7 @@ const HomePage = () => {
                   variant="contained"
                   color="primary"
                   type="submit"
+                  disabled={disabled}
                   sx={{
                     marginTop: "1rem",
                     padding: "0.5rem 3rem",
@@ -418,7 +454,10 @@ const HomePage = () => {
               {success && (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sx={styles.formControl}>
-                    <AnimatedAlert sx={{ width: "100%", mt: 2 }} severity="success">
+                    <AnimatedAlert
+                      sx={{ width: "100%", mt: 2 }}
+                      severity="success"
+                    >
                       <AlertTitle>Success</AlertTitle>
                       Your form has successfully been submitted{" "}
                     </AnimatedAlert>
