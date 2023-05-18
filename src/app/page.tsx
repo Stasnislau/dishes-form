@@ -340,6 +340,7 @@ const HomePage = () => {
                       value={formik.values.diameter}
                       inputProps={{
                         min: 1,
+                        step: "any",
                         pattern: "^[0-9]*$",
                         max: 99999,
                       }}
