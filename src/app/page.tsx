@@ -73,7 +73,7 @@ const HomePage = () => {
   }, []);
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Required"),
+    name: Yup.string().trim().required("Required"),
     preparation_time: Yup.string()
       .matches(
         /^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/,
@@ -179,7 +179,6 @@ const HomePage = () => {
       };
       response = await submitData(data);
     }
-    console.log(response);
     if (response.error)
       setError(response.error.message || "Something went wrong");
     else if (response.id) {
