@@ -1,5 +1,5 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`]
-
+## Dishes form
+This is a simple web page with a form. It uses the Formik library for form handling and sends simple requests to the server.
 ## Getting Started
 1. Clone the repository:
 
@@ -23,10 +23,12 @@ npm run dev
 
 ## Learn More
 
-This project uses Next.js, React. The form is built with Formik and Yup. The UI is built with material-ui. 
-Version of node.js used while developing is v18.3.0
-Version of npm used while developing is 8.11.0
+This project uses Next.js and React. The form is built with Formik and Yup. The UI is built with material-ui. 
+A version of node.js used while developing is v18.3.0
+A version of npm used while developing is 8.11.0
 
-## Deployment 
+## Preview
+This project is deployed on Netlify. The live demo can be accessed at [https://stanislau-form-task.netlify.app](https://stanislau-form-task.netlify.app)
 
-This project is deployed on netlify. The live demo could be accessed at [https://stanislau-form-task.netlify.app](https://stanislau-form-task.netlify.app)
+![image](https://github.com/Stasnislau/dishes-form/assets/56834401/a35d1fe9-b79d-4128-b319-33eb5d28f6de)
+
